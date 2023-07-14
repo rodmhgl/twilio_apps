@@ -49,7 +49,7 @@ jobs:
         key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY}}
         username: ${{ secrets.DIGITALOCEAN_USERNAME }}
         script: |
-          sudo -u nodejs bash
+          # sudo -u nodejs bash
           cd /home/nodejs/
           rm -rf /home/nodejs/twilio_apps/
           git clone https://github.com/rodmhgl/twilio_apps.git
@@ -57,7 +57,7 @@ jobs:
           rsync -ac --delete --progress /home/nodejs/twilio_apps/ /home/nodejs/deployed --exclude .git --quiet
           cd /home/nodejs/deployed
           npm install
-          pm2 start ecosystem.config.js
-          pm2 save
+          sudo -u nodejs pm2 start ecosystem.config.js --watch
+          sudo -u nodejs pm2 save
           rm -rf /home/nodejs/twilio_apps/
           exit
