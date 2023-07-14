@@ -73,3 +73,22 @@ jobs:
           # Cleanup after ourselves
           rm -rf $NODEJS_DIR/$CLONE_DIR
           exit
+    - name: Update Twilio Webhook URLs
+      env:
+        TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+        TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+        BAKER_SID: ${{ secrets.BAKER_SID}}
+        FREEBIRD_SID: ${{ secrets.FREEBIRD_SID}}
+        GETITON_SID: ${{ secrets.GETITON_SID}}
+        DEEPTHT_SID: ${{ secrets.DEEPTHT_SID}}
+      run: |
+        export BASE_URL=http://twilio.awkwardweirdterribleandbad.com
+        export BAKER_URL=$BASE_URL/call/baker
+        export FREEBIRD_URL=$BASE_URL/call/freebird
+        export GETITON_URL=$BASE_URL/call/getiton
+        export DEEPTHT_URL=$BASE_URL/ivr/welcome
+        export API_URL="https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers"
+        curl -XPOST "${API_URL}/${BAKER_SID}.json" --data-urlencode "VoiceUrl=${BAKER_URL}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
+        curl -XPOST "${API_URL}/${FREEBIRD_SID}.json" --data-urlencode "VoiceUrl=${FREEBIRD_URL}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
+        curl -XPOST "${API_URL}/${GETITON_SID}.json" --data-urlencode "VoiceUrl=${GETITON_URL}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
+        curl -XPOST "${API_URL}/${DEEPTHT_SID}.json" --data-urlencode "VoiceUrl=${DEEPTHT_URL}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
