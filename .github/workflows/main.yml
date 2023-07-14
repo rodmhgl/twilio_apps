@@ -49,9 +49,10 @@ jobs:
         key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY}}
         username: ${{ secrets.DIGITALOCEAN_USERNAME }}
         script: |
-          pm2 delete hello 
+          pm2 delete all
           sudo -u nodejs bash
           cd /home/nodejs/
+          rm -rf twilio_apps/
           git clone https://github.com/rodmhgl/twilio_apps.git
           cd twilio_apps/
           npm install
