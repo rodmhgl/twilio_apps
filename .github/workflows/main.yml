@@ -74,6 +74,7 @@ jobs:
             echo "::endgroup::"
 
       - name: Start NodeJS App
+        if: success()
         uses: appleboy/ssh-action@master
         env:
           NODEJS_DIR: ${{ vars.NODEJS_DIR }}
@@ -93,13 +94,13 @@ jobs:
 
             echo "::group::Starting App"
             cd "$DEPLOY_PATH"
-            
+
             echo "::debug::Installing node dependencies"
             npm ci
-            
+
             echo "::debug::Removing default hello pm2 instance"
             sudo -u nodejs pm2 delete hello || true
-            
+
             echo "::debug::Starting app and configuring for persistent startup"
             sudo -u nodejs pm2 start ecosystem.config.js --watch
             sudo -u nodejs pm2 save
@@ -109,36 +110,11 @@ jobs:
             rm -rf "$CLONE_PATH"
             echo "::endgroup::"
 
-      - name: Cleanup Deployment
-        uses: appleboy/ssh-action@master
-        env:
-          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
-          CLONE_DIR: ${{ vars.CLONE_DIR }}
-          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
-          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
-        with:
-          host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
-          key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
-          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
-          script: |
-            set -eo pipefail
-
-            CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
-            DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
-
-            echo "::group::Cleanup"
-            rm -rf "$CLONE_PATH"
-            echo "::endgroup::"
-
       - name: Update Twilio Webhook URLs
+        if: success()
         env:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          BAKER_SID: ${{ secrets.BAKER_SID }}
-          FREEBIRD_SID: ${{ secrets.FREEBIRD_SID }}
-          GETITON_SID: ${{ secrets.GETITON_SID }}
-          DEEPTHT_SID: ${{ secrets.DEEPTHT_SID }}
           HOST: ${{ vars.DIGITALOCEAN_HOSTNAME }}
         run: |
           BASE_URL="http://${HOST}"
@@ -159,3 +135,26 @@ jobs:
           post_voice_url "+16603337848" "ivr/welcome"
 
           echo "::endgroup::"
+
+      - name: Cleanup Deployment
+        if: always()
+        uses: appleboy/ssh-action@master
+        env:
+          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
+          CLONE_DIR: ${{ vars.CLONE_DIR }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        with:
+          host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
+          key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
+          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          script: |
+            set -eo pipefail
+
+            CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
+            DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
+
+            echo "::group::Cleanup"
+            rm -rf "$CLONE_PATH"
+            echo "::endgroup::"
