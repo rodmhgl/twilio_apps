@@ -50,7 +50,7 @@ jobs:
         username: ${{ secrets.DIGITALOCEAN_USERNAME }}
         script: |
           set +e # Do not exit on error
-          pm2 delete hello
+          sudo -u nodejs pm2 delete hello
           set -e # Exit on error
           cd /home/nodejs/
           # Remove any previous clones
