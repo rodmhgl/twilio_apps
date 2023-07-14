@@ -1,5 +1,7 @@
 # Twilio Hotlines
 
+[![Node.js CI](https://github.com/rodmhgl/twilio_apps/actions/workflows/main.yml/badge.svg)](https://github.com/rodmhgl/twilio_apps/actions/workflows/main.yml)
+
 ## 660-DeepTht
 
 Call 660-DeepTht to hear a Deep Thought from Jack Handey.
