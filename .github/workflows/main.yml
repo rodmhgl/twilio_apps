@@ -46,8 +46,8 @@ jobs:
       uses: appleboy/ssh-action@master
       env:
         NODEJS_DIR: /home/nodejs
-        CLONE_DIR: ${{ env.NODEJS_DIR }}/twilio_apps
-        DEPLOY_DIR: ${{ env.NODEJS_DIR }}/deployed
+        CLONE_DIR: /home/nodejs/twilio_apps
+        DEPLOY_DIR: /home/nodejs/deployed
       with:
         host: twilio.awkwardweirdterribleandbad.com
         key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY}}
