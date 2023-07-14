@@ -48,7 +48,7 @@ jobs:
           NODEJS_DIR: /home/nodejs
           CLONE_DIR: twilio_apps
           DEPLOY_DIR: deployed
-          REPO_URL: ${{ github.repositoryUrl}}
+          REPO_URL: "${{ github.server_url}}/${{ github.repository}}.git"
         with:
           host: twilio.awkwardweirdterribleandbad.com
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY}}
