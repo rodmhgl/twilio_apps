@@ -44,10 +44,10 @@ jobs:
     steps:
     - name: Deploy NodeJS App
       uses: appleboy/ssh-action@master
-      env:
+      envs:
         NODEJS_DIR: /home/nodejs
-        CLONE_DIR: /home/nodejs/twilio_apps
-        DEPLOY_DIR: /home/nodejs/deployed
+        CLONE_DIR: ${{ env.NODEJS_DIR }}/twilio_apps
+        DEPLOY_DIR: ${{ env.NODEJS_DIR }}/deployed
       with:
         host: twilio.awkwardweirdterribleandbad.com
         key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY}}
