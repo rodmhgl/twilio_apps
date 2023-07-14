@@ -44,6 +44,10 @@ jobs:
     steps:
     - name: Deploy NodeJS App
       uses: appleboy/ssh-action@master
+      env:
+        NODEJS_DIR: /home/nodejs
+        CLONE_DIR: ${{ env.NODEJS_DIR }}/twilio_apps
+        DEPLOY_DIR: ${{ env.NODEJS_DIR }}/deployed
       with:
         host: twilio.awkwardweirdterribleandbad.com
         key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY}}
@@ -52,18 +56,18 @@ jobs:
           set +e # Do not exit on error
           sudo -u nodejs pm2 delete hello
           set -e # Exit on error
-          cd /home/nodejs/
+          cd $NODEJS_DIR
           # Remove any previous clones
-          rm -rf /home/nodejs/twilio_apps/
+          rm -rf $CLONE_DIR
           git clone https://github.com/rodmhgl/twilio_apps.git
           # This is needed for the way I handle precommit hooks
-          mkdir -p /home/nodejs/deployed/.git/hooks
+          mkdir -p DEPLOY_DIR/.git/hooks
           # Copy the updated repo to our deployment folder
-          rsync -ac --delete --progress /home/nodejs/twilio_apps/ /home/nodejs/deployed --exclude .git --quiet
-          cd /home/nodejs/deployed
+          rsync -ac --delete --progress $CLONE_DIR/ DEPLOY_DIR --exclude .git --quiet
+          cd DEPLOY_DIR
           npm install
           sudo -u nodejs pm2 start ecosystem.config.js --watch
           sudo -u nodejs pm2 save
           # Cleanup after ourselves
-          rm -rf /home/nodejs/twilio_apps/
+          rm -rf $CLONE_DIR
           exit
