@@ -53,6 +53,7 @@ jobs:
         key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY}}
         username: ${{ secrets.DIGITALOCEAN_USERNAME }}
         script: |
+          export -p
           set +e # Do not exit on error
           sudo -u nodejs pm2 delete hello
           set -e # Exit on error
@@ -61,10 +62,10 @@ jobs:
           rm -rf $CLONE_DIR
           git clone https://github.com/rodmhgl/twilio_apps.git
           # This is needed for the way I handle precommit hooks
-          mkdir -p DEPLOY_DIR/.git/hooks
+          mkdir -p $DEPLOY_DIR/.git/hooks
           # Copy the updated repo to our deployment folder
-          rsync -ac --delete --progress $CLONE_DIR/ DEPLOY_DIR --exclude .git --quiet
-          cd DEPLOY_DIR
+          rsync -ac --delete --progress $CLONE_DIR/ $DEPLOY_DIR --exclude .git --quiet
+          cd $DEPLOY_DIR
           npm install
           sudo -u nodejs pm2 start ecosystem.config.js --watch
           sudo -u nodejs pm2 save
