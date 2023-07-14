@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [18.x]
+        node-version: [18.x, 20.x]
 
     steps:
       - name: Checkout Repository
@@ -132,7 +132,7 @@ jobs:
           post_voice_url "+1269BakerSt" "call/baker"
           post_voice_url "+191Freebird" "call/freebird"
           post_voice_url "+1662GetItOn" "call/getiton"
-          post_voice_url "+16603337848" "ivr/welcome"
+          post_voice_url "+1660DeepTht" "ivr/welcome"
 
           echo "::endgroup::"
 
