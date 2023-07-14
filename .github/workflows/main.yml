@@ -46,84 +46,115 @@ jobs:
       - name: Deploy NodeJS App
         uses: appleboy/ssh-action@master
         env:
-          NODEJS_DIR: /home/nodejs
-          CLONE_DIR: twilio_apps
-          DEPLOY_DIR: deployed
+          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
+          CLONE_DIR: ${{ vars.CLONE_DIR }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
         with:
-          host: twilio.awkwardweirdterribleandbad.com
+          host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
           envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
           script: |
             set -eo pipefail
+
             CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
             DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
 
-            deploy_app() {
-              echo "::group::Deploying App"
-              echo "::debug::Cleaning up and cloning repo"
-              rm -rf "$CLONE_PATH"
-              git clone "$REPO_URL" "$CLONE_PATH"
-              echo "::debug::Creating hooks directory"
-              mkdir -p "$DEPLOY_PATH/.git/hooks"
-              echo "::debug::Copying new code to deployment folder"
-              rsync -ac --delete --exclude .git "$CLONE_PATH/" "$DEPLOY_PATH"
-              echo "::endgroup::"
-            }
+            echo "::group::Deploying App"
+            echo "::debug::Cleaning up and cloning repo"
+            rm -rf "$CLONE_PATH"
+            git clone "$REPO_URL" "$CLONE_PATH"
 
-            start_app() {
-              echo "::group::Starting App"
-              cd "$DEPLOY_PATH"
-              echo "::debug::Installing node dependencies"
-              npm ci
-              echo "::debug::Removing default hello pm2 instance"
-              sudo -u nodejs pm2 delete hello || true
-              echo "::debug::Starting app and configuring for persistent startup"
-              sudo -u nodejs pm2 start ecosystem.config.js --watch
-              sudo -u nodejs pm2 save
-              echo "::endgroup::"
-            }
+            echo "::debug::Creating hooks directory"
+            mkdir -p "$DEPLOY_PATH/.git/hooks"
 
-            cleanup() {
-              echo "::group::Cleanup"
-              rm -rf "$CLONE_PATH"
-              echo "::endgroup::"
-            }
+            echo "::debug::Copying new code to deployment folder"
+            rsync -ac --delete --exclude .git "$CLONE_PATH/" "$DEPLOY_PATH"
+            echo "::endgroup::"
 
-            deploy_app
-            start_app
-            cleanup
+      - name: Start NodeJS App
+        if: success()
+        uses: appleboy/ssh-action@master
+        env:
+          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
+          CLONE_DIR: ${{ vars.CLONE_DIR }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        with:
+          host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
+          key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
+          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          script: |
+            set -eo pipefail
 
-            exit
+            CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
+            DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
+
+            echo "::group::Starting App"
+            cd "$DEPLOY_PATH"
+
+            echo "::debug::Installing node dependencies"
+            npm ci
+
+            echo "::debug::Removing default hello pm2 instance"
+            sudo -u nodejs pm2 delete hello || true
+
+            echo "::debug::Starting app and configuring for persistent startup"
+            sudo -u nodejs pm2 start ecosystem.config.js --watch
+            sudo -u nodejs pm2 save
+            echo "::endgroup::"
+
+            echo "::group::Cleanup"
+            rm -rf "$CLONE_PATH"
+            echo "::endgroup::"
 
       - name: Update Twilio Webhook URLs
+        if: success()
         env:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          BAKER_SID: ${{ secrets.BAKER_SID }}
-          FREEBIRD_SID: ${{ secrets.FREEBIRD_SID }}
-          GETITON_SID: ${{ secrets.GETITON_SID }}
-          DEEPTHT_SID: ${{ secrets.DEEPTHT_SID }}
+          HOST: ${{ vars.DIGITALOCEAN_HOSTNAME }}
         run: |
-          BASE_URL="http://twilio.awkwardweirdterribleandbad.com"
-          BAKER_URL="$BASE_URL/call/baker"
-          FREEBIRD_URL="$BASE_URL/call/freebird"
-          GETITON_URL="$BASE_URL/call/getiton"
-          DEEPTHT_URL="$BASE_URL/ivr/welcome"
+          BASE_URL="http://${HOST}"
           API_URL="https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers"
 
           post_voice_url() {
-            local sid="$1"
-            local voice_url="$2"
+            local phone_number="$1"
+            local voice_url="$BASE_URL/$2"
+            local sid=$(curl -s -XPOST "${API_URL}.json" --data-urlencode "PhoneNumber=$phone_number" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r .sid)
             curl -s -XPOST "${API_URL}/${sid}.json" --data-urlencode "VoiceUrl=${voice_url}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
           }
 
           echo "::group::Configuring Twilio Voice URLs"
 
-          post_voice_url "$BAKER_SID" "$BAKER_URL"
-          post_voice_url "$FREEBIRD_SID" "$FREEBIRD_URL"
-          post_voice_url "$GETITON_SID" "$GETITON_URL"
-          post_voice_url "$DEEPTHT_SID" "$DEEPTHT_URL"
+          post_voice_url "+1269BakerSt" "call/baker"
+          post_voice_url "+191Freebird" "call/freebird"
+          post_voice_url "+1662GetItOn" "call/getiton"
+          post_voice_url "+16603337848" "ivr/welcome"
 
           echo "::endgroup::"
+
+      - name: Cleanup Deployment
+        if: always()
+        uses: appleboy/ssh-action@master
+        env:
+          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
+          CLONE_DIR: ${{ vars.CLONE_DIR }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        with:
+          host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
+          key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
+          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          script: |
+            set -eo pipefail
+
+            CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
+            DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
+
+            echo "::group::Cleanup"
+            rm -rf "$CLONE_PATH"
+            echo "::endgroup::"
