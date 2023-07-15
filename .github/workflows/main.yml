@@ -96,7 +96,7 @@ jobs:
             cd "$DEPLOY_PATH"
 
             echo "::debug::Installing node dependencies"
-            npm ci
+            sudo -u nodejs npm ci
 
             echo "::debug::Removing default hello pm2 instance"
             sudo -u nodejs pm2 delete hello || true
