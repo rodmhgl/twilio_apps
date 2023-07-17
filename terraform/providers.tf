@@ -18,6 +18,7 @@ terraform {
     container_name       = "tfstate"
     key                  = "prod/twilio_do.tfstate"
     use_oidc             = true
+    use_azuread_auth     = true
   }
 
 }
