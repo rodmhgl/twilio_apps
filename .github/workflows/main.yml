@@ -71,6 +71,7 @@ jobs:
 
             echo "::debug::Copying new code to deployment folder"
             rsync -ac --delete --exclude .git "$CLONE_PATH/" "$DEPLOY_PATH"
+            chown -R nodejs:nodejs "$DEPLOY_PATH"
             echo "::endgroup::"
 
       - name: Start NodeJS App
