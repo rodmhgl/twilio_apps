@@ -32,7 +32,7 @@ data "azurerm_dns_zone" "this" {
 
 resource "azurerm_dns_a_record" "twilio" {
   name                = local.dns_a_record_name
-  ttl                 = 60
+  ttl                 = 300
   records             = [digitalocean_reserved_ip.this.ip_address]
   resource_group_name = data.azurerm_dns_zone.this.resource_group_name
   zone_name           = data.azurerm_dns_zone.this.name
