@@ -154,4 +154,4 @@ jobs:
 
       # Terraform Apply
       - name: Terraform Apply
-        run: ls ; terraform -chdir=./terraform apply -auto-approve ./terraform/tfplan
+        run: ls ./terraform ; terraform -chdir=./terraform apply -auto-approve ./terraform/tfplan
