@@ -35,15 +35,15 @@ jobs:
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init -backend=false
+        run: terraform -chdir=./terraform init -backend=false
 
       # Validate terraform files
       - name: Terraform Validate
-        run: terraform validate
+        run: terraform -chdir=./terraform validate
 
       # Checks that all Terraform configuration files adhere to a canonical format
       - name: Terraform Format
-        run: terraform fmt -check -recursive
+        run: terraform -chdir=./terraform fmt -check -recursive
 
       # Perform a security scan of the terraform code using checkov
       # TODO: How to exclude example directories?
@@ -52,6 +52,7 @@ jobs:
         id: checkov
         uses: bridgecrewio/checkov-action@master
         with:
+          directory: ./terraform
           framework: terraform
 
       # Upload results to GitHub Advanced Security
