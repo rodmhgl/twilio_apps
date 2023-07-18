@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths-ignore:
       - "**.md"
+      - "terraform/**"
   pull_request:
     branches: [main]
     paths-ignore:
       - "**.md"
+      - "terraform/**"
   workflow_dispatch:
 
 jobs:
