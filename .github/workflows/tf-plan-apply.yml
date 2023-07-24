@@ -152,6 +152,10 @@ jobs:
           name: tfplan
           path: ./terraform/tfplan
 
+      # Troubleshoot
+      - name: Troubleshoot
+        run: ls -alrt ./terraform/tfplan ; cat ./terraform/tfplan
+
       # Terraform Apply
       - name: Terraform Apply
         run: terraform -chdir=./terraform apply tfplan
