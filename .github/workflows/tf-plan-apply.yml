@@ -150,7 +150,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: tfplan
-          path: ./terraform/tfplan
+          path: ./terraform/
 
       # Troubleshoot
       - name: Troubleshoot
