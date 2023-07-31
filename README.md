@@ -36,6 +36,8 @@ From the development perspective, nothing special is happening here. Twilio rece
 
 For the Deep Thoughts hotline, an IVR allows the caller to choose between different Deep Thoughts. The endpoint responds with a `<Gather>` verb that tells Twilio to wait for the caller to press a digit. Once the user presses a digit, Twilio triggers the webhook to the app's endpoint again, which responds with a `<Play>` verb that tells Twilio to play the chosen audio file.
 
+Dropbox is used for storage of the audio files. This is problematic for a few reasons and will likely be replaced by an Azure Storage Account at some point. The main issue is that Dropbox doesn't provide a way (that I know of) to get a permanent direct link to the audio file. While we could likely work some API magic to retrieve links on-demand and keep our Azure footprint small, it's probably best to just move to a more appropriate storage solution.
+
 ### The CI/CD
 
 #### Infrastructure as Code
