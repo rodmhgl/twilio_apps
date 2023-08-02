@@ -56,8 +56,25 @@ jobs:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: CLONE_DIR,DEPLOY_DIR,REPO_URL
-          script: ../scripts/deploy.sh ${{ vars.CLONE_DIR }} ${{ vars.DEPLOY_DIR }} ${{ vars.REPO_URL }}
+          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          script: |
+            set -eo pipefail
+
+            echo "::group::Deploying App"
+            echo "::debug::Cleaning up and cloning repo"
+
+            rm -rf "$CLONE_DIR"
+            git clone "$REPO_URL" "$CLONE_DIR"
+
+            echo "::debug::Creating hooks directory"
+            mkdir -p "$DEPLOY_DIR/.git/hooks"
+
+            echo "::debug::Copying new code to deployment folder"
+
+            rsync -ac --delete --exclude .git "$CLONE_DIR/" "$DEPLOY_DIR"
+            chown -R nodejs:nodejs "$DEPLOY_DIR"
+
+            echo "::endgroup::"
 
       - name: Start NodeJS App
         if: success()
@@ -70,7 +87,7 @@ jobs:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: CLONE_DIR,DEPLOY_DIR,REPO_URL
+          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
           script: |
             set -eo pipefail
 
@@ -129,7 +146,7 @@ jobs:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: CLONE_DIR,DEPLOY_DIR,REPO_URL
+          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
           script: |
             set -eo pipefail
 
