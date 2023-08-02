@@ -14,8 +14,8 @@ on:
   workflow_dispatch:
 
 env:
-  CLONE_DIR: ${{ vars.NODEJS_DIR }}/${{ vars.CLONE_DIR }}
-  DEPLOY_DIR: ${{ vars.NODEJS_DIR }}/${{ vars.DEPLOY_DIR }}
+  CLONE_PATH: ${{ vars.NODEJS_DIR }}/${{ vars.CLONE_DIR }}
+  DEPLOY_PATH: ${{ vars.NODEJS_DIR }}/${{ vars.DEPLOY_DIR }}
   REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
 
 jobs:
@@ -56,58 +56,40 @@ jobs:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          envs: CLONE_PATH,DEPLOY_PATH,REPO_URL
           script: |
             set -eo pipefail
 
-            echo "::group::Deploying App"
-            echo "::debug::Cleaning up and cloning repo"
+            rm -rf "$CLONE_PATH"
+            git clone "$REPO_URL" "$CLONE_PATH"
 
-            rm -rf "$CLONE_DIR"
-            git clone "$REPO_URL" "$CLONE_DIR"
+            mkdir -p "$DEPLOY_PATH/.git/hooks"
 
-            echo "::debug::Creating hooks directory"
-            mkdir -p "$DEPLOY_DIR/.git/hooks"
-
-            echo "::debug::Copying new code to deployment folder"
-
-            rsync -ac --delete --exclude .git "$CLONE_DIR/" "$DEPLOY_DIR"
-            chown -R nodejs:nodejs "$DEPLOY_DIR"
-
-            echo "::endgroup::"
+            rsync -ac --delete --exclude .git "$CLONE_PATH/" "$DEPLOY_PATH"
+            chown -R nodejs:nodejs "$DEPLOY_PATH"
 
       - name: Start NodeJS App
         if: success()
         uses: appleboy/ssh-action@v1.0.0
-        env:
-          CLONE_DIR: ${{ vars.CLONE_DIR }}
-          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
-          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        # env:
+        #   CLONE_PATH: ${{ vars.CLONE_DIR }}
+        #   DEPLOY_PATH: ${{ vars.DEPLOY_DIR }}
         with:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          envs: CLONE_PATH,DEPLOY_PATH
           script: |
             set -eo pipefail
 
-            echo "::group::Starting App"
-            cd "$DEPLOY_DIR"
+            cd "$DEPLOY_PATH"
 
-            echo "::debug::Installing node dependencies"
             sudo -u nodejs npm ci
-
-            echo "::debug::Removing default hello pm2 instance"
             sudo -u nodejs pm2 delete hello || true
-
-            echo "::debug::Starting app and configuring for persistent startup"
             sudo -u nodejs pm2 start ecosystem.config.js --watch
             sudo -u nodejs pm2 save
-            echo "::endgroup::"
 
-            echo "::group::Cleanup"
-            rm -rf "$CLONE_DIR"
-            echo "::endgroup::"
+            rm -rf "$CLONE_PATH"
 
       - name: Update Twilio Webhook URLs
         if: success()
@@ -126,30 +108,22 @@ jobs:
             curl -s -XPOST "${API_URL}/${sid}.json" --data-urlencode "VoiceUrl=${voice_url}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
           }
 
-          echo "::group::Configuring Twilio Voice URLs"
-
           post_voice_url "+1269BakerSt" "call/baker"
           post_voice_url "+191Freebird" "call/freebird"
           post_voice_url "+1662GetItOn" "call/getiton"
           post_voice_url "+1660DeepTht" "ivr/welcome"
 
-          echo "::endgroup::"
-
       - name: Cleanup Deployment
         if: always()
         uses: appleboy/ssh-action@v1.0.0
-        env:
-          CLONE_DIR: ${{ vars.CLONE_DIR }}
-          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
-          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        # env:
+          # CLONE_PATH: ${{ vars.CLONE_DIR }}
         with:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          envs: CLONE_PATH
           script: |
             set -eo pipefail
 
-            echo "::group::Cleanup"
-            rm -rf "$CLONE_DIR"
-            echo "::endgroup::"
+            rm -rf "$CLONE_PATH"
