@@ -4,6 +4,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const router = require('./src/router');
+const errorHandler = require('./src/errorHandler');
 const app = express();
 
 // view engine setup
