@@ -13,6 +13,11 @@ on:
       - "terraform/**"
   workflow_dispatch:
 
+env:
+  CLONE_DIR: ${{ vars.NODEJS_DIR }}/${{ vars.CLONE_DIR }}
+  DEPLOY_DIR: ${{ vars.NODEJS_DIR }}/${{ vars.DEPLOY_DIR }}
+  REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -46,41 +51,18 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy NodeJS App
-        uses: appleboy/ssh-action@master
-        env:
-          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
-          CLONE_DIR: ${{ vars.CLONE_DIR }}
-          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
-          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
-          script: |
-            set -eo pipefail
-
-            CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
-            DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
-
-            echo "::group::Deploying App"
-            echo "::debug::Cleaning up and cloning repo"
-            rm -rf "$CLONE_PATH"
-            git clone "$REPO_URL" "$CLONE_PATH"
-
-            echo "::debug::Creating hooks directory"
-            mkdir -p "$DEPLOY_PATH/.git/hooks"
-
-            echo "::debug::Copying new code to deployment folder"
-            rsync -ac --delete --exclude .git "$CLONE_PATH/" "$DEPLOY_PATH"
-            chown -R nodejs:nodejs "$DEPLOY_PATH"
-            echo "::endgroup::"
+          envs: CLONE_DIR,DEPLOY_DIR,REPO_URL
+          script: ../scripts/deploy.sh ${{ vars.CLONE_DIR }} ${{ vars.DEPLOY_DIR }} ${{ vars.REPO_URL }}
 
       - name: Start NodeJS App
         if: success()
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.0
         env:
-          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
           CLONE_DIR: ${{ vars.CLONE_DIR }}
           DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
@@ -88,15 +70,12 @@ jobs:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          envs: CLONE_DIR,DEPLOY_DIR,REPO_URL
           script: |
             set -eo pipefail
 
-            CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
-            DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
-
             echo "::group::Starting App"
-            cd "$DEPLOY_PATH"
+            cd "$DEPLOY_DIR"
 
             echo "::debug::Installing node dependencies"
             sudo -u nodejs npm ci
@@ -110,7 +89,7 @@ jobs:
             echo "::endgroup::"
 
             echo "::group::Cleanup"
-            rm -rf "$CLONE_PATH"
+            rm -rf "$CLONE_DIR"
             echo "::endgroup::"
 
       - name: Update Twilio Webhook URLs
@@ -141,9 +120,8 @@ jobs:
 
       - name: Cleanup Deployment
         if: always()
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.0
         env:
-          NODEJS_DIR: ${{ vars.NODEJS_DIR }}
           CLONE_DIR: ${{ vars.CLONE_DIR }}
           DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
@@ -151,13 +129,10 @@ jobs:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: NODEJS_DIR,CLONE_DIR,DEPLOY_DIR,REPO_URL
+          envs: CLONE_DIR,DEPLOY_DIR,REPO_URL
           script: |
             set -eo pipefail
 
-            CLONE_PATH="$NODEJS_DIR/$CLONE_DIR"
-            DEPLOY_PATH="$NODEJS_DIR/$DEPLOY_DIR"
-
             echo "::group::Cleanup"
-            rm -rf "$CLONE_PATH"
+            rm -rf "$CLONE_DIR"
             echo "::endgroup::"
