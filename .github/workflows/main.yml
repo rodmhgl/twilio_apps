@@ -58,7 +58,11 @@ jobs:
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
           envs: CLONE_PATH,DEPLOY_PATH,REPO_URL
           script: |
-            set -eo pipefail
+            set -eox pipefail
+
+            echo "Clone path is: ${$CLONE_PATH}"
+            echo "Deploy path is: ${$CLONE_PATH}"
+            echo "Repo path is: ${$CLONE_PATH}"
 
             rm -rf "$CLONE_PATH"
             git clone "$REPO_URL" "$CLONE_PATH"
@@ -80,7 +84,7 @@ jobs:
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
           envs: CLONE_PATH,DEPLOY_PATH
           script: |
-            set -eo pipefail
+            set -eox pipefail
 
             cd "$DEPLOY_PATH"
 
@@ -124,6 +128,6 @@ jobs:
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
           envs: CLONE_PATH
           script: |
-            set -eo pipefail
+            set -eox pipefail
 
             rm -rf "$CLONE_PATH"
