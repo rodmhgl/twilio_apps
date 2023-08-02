@@ -60,9 +60,9 @@ jobs:
           script: |
             set -eox pipefail
 
-            echo "Clone path is: ${$CLONE_PATH}"
-            echo "Deploy path is: ${$CLONE_PATH}"
-            echo "Repo path is: ${$CLONE_PATH}"
+            echo "Clone path is: ${CLONE_PATH}"
+            echo "Deploy path is: ${DEPLOY_PATH}"
+            echo "Repo path is: ${REPO_URL}"
 
             rm -rf "$CLONE_PATH"
             git clone "$REPO_URL" "$CLONE_PATH"
