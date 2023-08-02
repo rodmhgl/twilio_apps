@@ -4,6 +4,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const router = require('./src/router');
+const errorHandler = require('./src/errorHandler');
 const app = express();
 
 // view engine setup
@@ -28,12 +29,14 @@ app.use(function(req, res, next) {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: app.get('env') === 'development' ? err : {},
-  });
-});
+// app.use(function(err, req, res) {
+//   res.status(err.status || 500);
+//   res.render('error', {
+//     message: err.message,
+//     error: app.get('env') === 'development' ? err : {},
+//   });
+// });
+
+app.use(errorHandler);
 
 module.exports = app;
