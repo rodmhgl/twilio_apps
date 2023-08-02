@@ -4,7 +4,8 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const router = require('./src/router');
-const errorHandler = require('./src/errorHandler');
+const {notFoundHandler,
+  generalErrorHandler} = require('./middleware/errorHandler');
 const app = express();
 
 // view engine setup
@@ -19,16 +20,18 @@ app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(router);
+app.use(notFoundHandler);
+app.use(generalErrorHandler);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+// app.use(function(req, res, next) {
+//   const err = new Error('Not Found');
+//   err.status = 404;
+//   next(err);
+// });
 
-// production error handler
-// no stacktraces leaked to user
+// // production error handler
+// // no stacktraces leaked to user
 // app.use(function(err, req, res) {
 //   res.status(err.status || 500);
 //   res.render('error', {
@@ -37,6 +40,5 @@ app.use(function(req, res, next) {
 //   });
 // });
 
-app.use(errorHandler);
 
 module.exports = app;
