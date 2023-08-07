@@ -8,15 +8,20 @@ updates:
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
-      day: "tuesday"
+      interval: "daily"
       time: "14:10"
       timezone: "America/Chicago"
 
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
       time: "14:10"
+      timezone: "America/Chicago"
+
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+      time: "14:12"
       timezone: "America/Chicago"
