@@ -34,12 +34,12 @@
     "pug": "^3.0.2",
     "morgan": "^1.10.0",
     "serve-favicon": "^2.5.0",
-    "stylus": "0.54.5",
+    "stylus": "0.59.0",
     "twilio": "^4.13.0"
   },
   "devDependencies": {
-    "eslint": "^8.44.0",
-    "eslint-config-google": "^0.14.0",
-    "jest": "^29.6.1"
+    "eslint": "^8.46.0",
+    "eslint-config-google": "^0.7.1",
+    "jest": "^29.6.2"
   }
 }
