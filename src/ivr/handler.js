@@ -36,9 +36,9 @@ exports.menu = function menu(digit) {
     2: MankindURL,
   };
 
-  return optionActions[digit]
-    ? playDeepThought(optionActions[digit])
-    : redirectWelcome();
+  return optionActions[digit] ?
+    playDeepThought(optionActions[digit]) :
+    redirectWelcome();
 };
 
 /**
