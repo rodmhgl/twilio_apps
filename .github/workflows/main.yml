@@ -60,10 +60,6 @@ jobs:
           script: |
             set -eox pipefail
 
-            echo "Clone path is: ${CLONE_PATH}"
-            echo "Deploy path is: ${DEPLOY_PATH}"
-            echo "Repo path is: ${REPO_URL}"
-
             rm -rf "$CLONE_PATH"
             git clone "$REPO_URL" "$CLONE_PATH"
 
@@ -101,21 +97,27 @@ jobs:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           HOST: ${{ vars.DIGITALOCEAN_HOSTNAME }}
+          API_URL: ${{ vars.TWILIO_API_URL }}
         run: |
           BASE_URL="http://${HOST}"
-          API_URL="https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/IncomingPhoneNumbers"
+
+          declare -A numbers=(
+            ["+1269BakerSt"]="call/baker"
+            ["+191Freebird"]="call/freebird"
+            ["+1662GetItOn"]="call/getiton"
+            ["+1660DeepTht"]="ivr/welcome"
+          )
 
           post_voice_url() {
             local phone_number="$1"
-            local voice_url="$BASE_URL/$2"
+            local voice_url="${BASE_URL}/$2"
             local sid=$(curl -s -XPOST "${API_URL}.json" --data-urlencode "PhoneNumber=$phone_number" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r .sid)
             curl -s -XPOST "${API_URL}/${sid}.json" --data-urlencode "VoiceUrl=${voice_url}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
           }
 
-          post_voice_url "+1269BakerSt" "call/baker"
-          post_voice_url "+191Freebird" "call/freebird"
-          post_voice_url "+1662GetItOn" "call/getiton"
-          post_voice_url "+1660DeepTht" "ivr/welcome"
+          for key in ${!numbers[@]}; do
+            post_voice_url $key ${numbers[$key]}
+          done
 
       - name: Cleanup Deployment
         if: always()
