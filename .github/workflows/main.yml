@@ -70,7 +70,7 @@ jobs:
             set -eox pipefail
 
             docker pull rodstewart/twilio-apps:latest
-            docker run -dit --restart unless-stopped -p 3000:3000 rodstewart/twilio-apps:latest
+            docker run -dit --restart unless-stopped -p 80:3000 rodstewart/twilio-apps:latest
 
 
       # - name: Start NodeJS App
