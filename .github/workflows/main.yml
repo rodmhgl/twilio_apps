@@ -70,31 +70,8 @@ jobs:
             set -eox pipefail
 
             docker pull rodstewart/twilio-apps:latest
-            docker run -dit --restart unless-stopped -p 80:3000 rodstewart/twilio-apps:latest
-
-
-      # - name: Start NodeJS App
-      #   if: success()
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   # env:
-      #   #   CLONE_PATH: ${{ vars.CLONE_DIR }}
-      #   #   DEPLOY_PATH: ${{ vars.DEPLOY_DIR }}
-      #   with:
-      #     host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
-      #     key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
-      #     username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-      #     envs: CLONE_PATH,DEPLOY_PATH
-      #     script: |
-      #       set -eox pipefail
-
-      #       cd "$DEPLOY_PATH"
-
-      #       sudo -u nodejs npm ci
-      #       sudo -u nodejs pm2 delete hello || true
-      #       sudo -u nodejs pm2 start ecosystem.config.js --watch
-      #       sudo -u nodejs pm2 save
-
-      #       rm -rf "$CLONE_PATH"
+            docker rm --name twilio_apps -f
+            docker run --name twilio_apps -dit --restart unless-stopped -p 80:3000 rodstewart/twilio-apps:latest
 
       - name: Update Twilio Webhook URLs
         if: success()
@@ -125,18 +102,3 @@ jobs:
           for key in ${!numbers[@]}; do
             post_voice_url $key ${numbers[$key]}
           done
-
-      # - name: Cleanup Deployment
-      #   if: always()
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   # env:
-      #     # CLONE_PATH: ${{ vars.CLONE_DIR }}
-      #   with:
-      #     host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
-      #     key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
-      #     username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-      #     envs: CLONE_PATH
-      #     script: |
-      #       set -eox pipefail
-
-      #       rm -rf "$CLONE_PATH"
