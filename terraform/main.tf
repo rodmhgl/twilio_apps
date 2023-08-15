@@ -1,7 +1,7 @@
 locals {
   dns_zone_name     = "awkwardweirdterribleandbad.com"
   dns_a_record_name = "twilio"
-  droplet_size      = s-1vcpu-1gb
+  droplet_size      = "s-1vcpu-1gb"
   droplet_image     = "docker-20-04"
   droplet_region    = "sfo3"
   # droplet_size      = "s-1vcpu-512mb-10gb" # size, image, and region slugs - https://slugs.do-api.dev/
