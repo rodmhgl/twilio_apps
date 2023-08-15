@@ -82,8 +82,7 @@ jobs:
           API_URL: ${{ vars.TWILIO_API_URL }}
         run: |
           BASE_URL="http://${HOST}"
-          echo "${API_URL}"
-          echo $BASE_URL
+          API_URL=$(echo $API_URL | sed "s/\${TWILIO_ACCOUNT_SID}/$TWILIO_ACCOUNT_SID/g")
 
           declare -A numbers=(
             ["+1269BakerSt"]="call/baker"
