@@ -59,7 +59,7 @@ jobs:
     needs: [build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Deploy NodeJS App
+      - name: Start Docker
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
@@ -69,36 +69,35 @@ jobs:
           script: |
             set -eox pipefail
 
-            rm -rf "$CLONE_PATH"
-            git clone "$REPO_URL" "$CLONE_PATH"
-
-            mkdir -p "$DEPLOY_PATH/.git/hooks"
-
-            rsync -ac --delete --exclude .git "$CLONE_PATH/" "$DEPLOY_PATH"
-            chown -R nodejs:nodejs "$DEPLOY_PATH"
-
-      - name: Start NodeJS App
-        if: success()
-        uses: appleboy/ssh-action@v1.0.0
-        # env:
-        #   CLONE_PATH: ${{ vars.CLONE_DIR }}
-        #   DEPLOY_PATH: ${{ vars.DEPLOY_DIR }}
-        with:
-          host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
-          key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
-          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: CLONE_PATH,DEPLOY_PATH
-          script: |
-            set -eox pipefail
-
-            cd "$DEPLOY_PATH"
-
-            sudo -u nodejs npm ci
-            sudo -u nodejs pm2 delete hello || true
-            sudo -u nodejs pm2 start ecosystem.config.js --watch
+            sudo -u nodejs pm2 delete twilio-apps || true
             sudo -u nodejs pm2 save
 
-            rm -rf "$CLONE_PATH"
+            docker pull rodstewart/twilio-apps:latest
+            docker run -dit --restart unless-stopped -p 3000:3000 rodstewart/twilio-apps:latest
+
+
+      # - name: Start NodeJS App
+      #   if: success()
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   # env:
+      #   #   CLONE_PATH: ${{ vars.CLONE_DIR }}
+      #   #   DEPLOY_PATH: ${{ vars.DEPLOY_DIR }}
+      #   with:
+      #     host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
+      #     key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
+      #     username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+      #     envs: CLONE_PATH,DEPLOY_PATH
+      #     script: |
+      #       set -eox pipefail
+
+      #       cd "$DEPLOY_PATH"
+
+      #       sudo -u nodejs npm ci
+      #       sudo -u nodejs pm2 delete hello || true
+      #       sudo -u nodejs pm2 start ecosystem.config.js --watch
+      #       sudo -u nodejs pm2 save
+
+      #       rm -rf "$CLONE_PATH"
 
       - name: Update Twilio Webhook URLs
         if: success()
@@ -128,17 +127,17 @@ jobs:
             post_voice_url $key ${numbers[$key]}
           done
 
-      - name: Cleanup Deployment
-        if: always()
-        uses: appleboy/ssh-action@v1.0.0
-        # env:
-          # CLONE_PATH: ${{ vars.CLONE_DIR }}
-        with:
-          host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
-          key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
-          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: CLONE_PATH
-          script: |
-            set -eox pipefail
+      # - name: Cleanup Deployment
+      #   if: always()
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   # env:
+      #     # CLONE_PATH: ${{ vars.CLONE_DIR }}
+      #   with:
+      #     host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
+      #     key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
+      #     username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+      #     envs: CLONE_PATH
+      #     script: |
+      #       set -eox pipefail
 
-            rm -rf "$CLONE_PATH"
+      #       rm -rf "$CLONE_PATH"
