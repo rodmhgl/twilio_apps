@@ -69,9 +69,6 @@ jobs:
           script: |
             set -eox pipefail
 
-            sudo -u nodejs pm2 delete twilio-apps || true
-            sudo -u nodejs pm2 save
-
             docker pull rodstewart/twilio-apps:latest
             docker run -dit --restart unless-stopped -p 3000:3000 rodstewart/twilio-apps:latest
 
