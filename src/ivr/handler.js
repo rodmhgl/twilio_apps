@@ -48,6 +48,7 @@ exports.menu = function menu(digit) {
  */
 function playDeepThought(pathToMp3) {
   const twiml = new VoiceResponse();
+
   twiml.play({}, pathToMp3);
   twiml.hangup();
 
@@ -62,7 +63,6 @@ function redirectWelcome() {
   const twiml = new VoiceResponse();
 
   twiml.say('Redirecting to welcome menu.');
-
   twiml.redirect('/ivr/welcome');
 
   return twiml.toString();
