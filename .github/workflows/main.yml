@@ -85,6 +85,8 @@ jobs:
           BASE_URL="http://${HOST}"
           INCOMING_API_URL="${API_URL}/IncomingPhoneNumbers"
 
+          echo $INCOMING_API_URL
+
           declare -A numbers=(
             ["+1269BakerSt"]="call/baker"
             ["+191Freebird"]="call/freebird"
