@@ -79,10 +79,11 @@ jobs:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           HOST: ${{ vars.DIGITALOCEAN_HOSTNAME }}
-          API_URL: ${{ vars.TWILIO_API_URL }}
+          # API_URL: ${{ vars.TWILIO_API_URL }}
+          API_URL: "${{ vars.TWILIO_API_URL }}/${{ secrets.TWILIO_ACCOUNT_SID }}"
         run: |
           BASE_URL="http://${HOST}"
-          API_URL=$(echo $API_URL | sed "s/\${TWILIO_ACCOUNT_SID}/$TWILIO_ACCOUNT_SID/g")
+          INCOMING_API_URL="$API_URL/IncomingPhoneNumbers"
 
           declare -A numbers=(
             ["+1269BakerSt"]="call/baker"
@@ -94,8 +95,8 @@ jobs:
           post_voice_url() {
             local phone_number="$1"
             local voice_url="${BASE_URL}/$2"
-            local sid=$(curl -s -XPOST "${API_URL}.json" --data-urlencode "PhoneNumber=$phone_number" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r .sid)
-            curl -s -XPOST "${API_URL}/${sid}.json" --data-urlencode "VoiceUrl=${voice_url}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
+            local sid=$(curl -s -XPOST "${INCOMING_API_URL}.json" --data-urlencode "PhoneNumber=$phone_number" -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN | jq -r .sid)
+            curl -s -XPOST "${INCOMING_API_URL}/${sid}.json" --data-urlencode "VoiceUrl=${voice_url}" -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN"
           }
 
           for key in ${!numbers[@]}; do
