@@ -83,7 +83,7 @@ jobs:
           API_URL: "${{ vars.TWILIO_API_URL }}/${{ secrets.TWILIO_ACCOUNT_SID }}"
         run: |
           BASE_URL="http://${HOST}"
-          INCOMING_API_URL="$API_URL/IncomingPhoneNumbers"
+          INCOMING_API_URL="${API_URL}/IncomingPhoneNumbers"
 
           declare -A numbers=(
             ["+1269BakerSt"]="call/baker"
