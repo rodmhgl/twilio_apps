@@ -112,5 +112,5 @@ jobs:
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           HOST: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           API_URL: "${{ vars.TWILIO_API_URL }}/${{ secrets.TWILIO_ACCOUNT_SID }}"
-        run: ls #./scripts/update_twilio_webhooks.sh
+        run: ./scripts/update_twilio_webhooks.sh
         shell: bash
