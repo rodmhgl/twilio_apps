@@ -91,6 +91,9 @@ jobs:
     needs: [build]
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
       - name: Start Docker
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -112,5 +115,5 @@ jobs:
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           HOST: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           API_URL: "${{ vars.TWILIO_API_URL }}/${{ secrets.TWILIO_ACCOUNT_SID }}"
-        run: ./scripts/update_twilio_webhooks.sh
+        run: ./.github/scripts/update_twilio_webhooks.sh
         shell: bash
