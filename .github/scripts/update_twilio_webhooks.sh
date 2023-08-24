@@ -1,5 +1,3 @@
-!/bin/bash
-
 BASE_URL="http://${HOST}"
 INCOMING_API_URL="${API_URL}/IncomingPhoneNumbers"
 
