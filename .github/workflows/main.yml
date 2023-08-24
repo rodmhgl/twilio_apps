@@ -76,7 +76,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }} # rodstewart/twilio-apps:latest
+          tags: ${{ steps.meta.outputs.tags }} # rodstewart/twilio_apps:latest
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: gha
           cache-to: type=gha,mode=max
@@ -84,7 +84,7 @@ jobs:
       # - name: Publish to Registry
       #   uses: elgohr/Publish-Docker-Github-Action@v5
       #   with:
-      #     name: rodstewart/twilio-apps
+      #     name: rodstewart/twilio_apps
       #     username: ${{ secrets.DOCKER_USERNAME }}
       #     password: ${{ secrets.DOCKER_PASSWORD }}
       #     default_branch: main
@@ -105,9 +105,9 @@ jobs:
           script: |
             set -eox pipefail
 
-            docker pull rodstewart/twilio-apps:latest
+            docker pull rodstewart/twilio_apps:latest
             docker rm twilio_apps -f
-            docker run --name twilio_apps -dit --restart unless-stopped -p 80:3000 rodstewart/twilio-apps:latest
+            docker run --name twilio_apps -dit --restart unless-stopped -p 80:3000 rodstewart/twilio_apps:latest
 
       - name: Update Twilio Webhook URLs
         if: success()
