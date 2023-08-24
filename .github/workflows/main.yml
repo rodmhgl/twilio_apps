@@ -108,7 +108,7 @@ jobs:
             docker rm twilio_apps -f
             docker run --name twilio_apps -dit --restart unless-stopped -p 80:3000 rodstewart/twilio_apps:latest
 
-      - name: Updates Twilio Webhook URLs
+      - name: Update Twilio Webhook URLs
         if: success()
         env:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
