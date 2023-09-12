@@ -20,8 +20,8 @@ WORKDIR /usr/src/app
 
 ENV NODE_ENV production
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S twilio -u 1001
+RUN addgroup --gid 1001 --system nodejs
+RUN adduser --system twilio --uid 1001
 
 COPY --from=builder --chown=nextjs:nodejs /usr/src/app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /usr/src/app/node_modules ./node_modules
