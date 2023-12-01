@@ -34,7 +34,7 @@
     "pug": "^3.0.2",
     "morgan": "^1.10.0",
     "serve-favicon": "^2.5.0",
-    "stylus": "0.60.0",
+    "stylus": "0.62.0",
     "twilio": "^4.17.0"
   },
   "devDependencies": {
