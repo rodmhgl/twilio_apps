@@ -23,9 +23,12 @@ ENV NODE_ENV production
 RUN addgroup --gid 1001 --system nodejs
 RUN adduser --system twilio --uid 1001
 
-COPY --from=builder --chown=nextjs:nodejs /usr/src/app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /usr/src/app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /usr/src/app/package.json ./package.json
+COPY --from=builder --chown=twilio:nodejs /usr/src/app/*.js ./
+COPY --from=builder --chown=twilio:nodejs /usr/src/app/src ./src
+COPY --from=builder --chown=twilio:nodejs /usr/src/app/middleware ./middleware
+COPY --from=builder --chown=twilio:nodejs /usr/src/app/public ./public
+COPY --from=builder --chown=twilio:nodejs /usr/src/app/node_modules ./node_modules
+COPY --from=builder --chown=twilio:nodejs /usr/src/app/package.json ./package.json
 
 USER twilio
 
