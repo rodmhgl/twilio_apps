@@ -22,7 +22,8 @@ permissions:
 jobs:
   terraform-unit-tests:
     name: "Terraform Unit Tests"
-    runs-on: ubuntu-latest
+    runs-on:
+      labels: caej-devops-dev-37xd5ccp-e3rp520-l7nbg
 
     steps:
       # Checkout the repository to the GitHub Actions runner

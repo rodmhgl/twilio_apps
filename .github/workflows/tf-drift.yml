@@ -22,7 +22,8 @@ env:
 jobs:
   terraform-plan:
     name: "Terraform Plan"
-    runs-on: ubuntu-latest
+    runs-on:
+      labels: caej-devops-dev-37xd5ccp-e3rp520-l7nbg
     env:
       #this is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
@@ -57,7 +58,7 @@ jobs:
           if [ $exitcode -eq 1 ]; then
             echo Terraform Plan Failed!
             exit 1
-          else 
+          else
             exit 0
           fi
 
@@ -113,11 +114,11 @@ jobs:
               creator: creator,
               title: title
             })
-              
+
             if( issues.data.length > 0 ) {
               // We assume there shouldn't be more than 1 open issue, since we update any issue we find
               const issue = issues.data[0]
-              
+
               if ( issue.body == body ) {
                 console.log('Drift Detected: Found matching issue with duplicate content')
               } else {
@@ -158,10 +159,10 @@ jobs:
               creator: creator,
               title: title
             })
-              
+
             if( issues.data.length > 0 ) {
               const issue = issues.data[0]
-              
+
               github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
