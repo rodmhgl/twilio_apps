@@ -20,7 +20,8 @@ env:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on:
+      labels: caej-devops-dev-37xd5ccp-e3rp520-l7nbg
 
     strategy:
       matrix:
@@ -87,7 +88,8 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on:
+      labels: caej-devops-dev-37xd5ccp-e3rp520-l7nbg
     needs: [build]
     if: github.ref == 'refs/heads/main'
     steps:
