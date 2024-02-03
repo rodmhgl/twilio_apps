@@ -22,8 +22,7 @@ env:
 jobs:
   terraform-plan:
     name: "Terraform Plan"
-    runs-on:
-      labels: caej-devops-dev-37xd5ccp-e3rp520-l7nbg
+    runs-on: [self-hosted, linux, x64, gpu]
     env:
       #this is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
