@@ -22,7 +22,7 @@ permissions:
 jobs:
   terraform-unit-tests:
     name: "Terraform Unit Tests"
-    runs-on: [self-hosted, linux, x64, gpu]
+    runs-on: [self-hosted, linux, x64, ]
 
     steps:
       # Checkout the repository to the GitHub Actions runner
