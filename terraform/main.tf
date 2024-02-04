@@ -4,6 +4,9 @@ locals {
   droplet_size      = "s-1vcpu-1gb"
   droplet_image     = "docker-20-04"
   droplet_region    = "sfo3"
+  tags = {
+    app = "twilio"
+  }
 }
 
 resource "digitalocean_ssh_key" "this" {
@@ -36,6 +39,7 @@ resource "azurerm_dns_a_record" "twilio" {
   records             = [digitalocean_reserved_ip.this.ip_address]
   resource_group_name = data.azurerm_dns_zone.this.resource_group_name
   zone_name           = data.azurerm_dns_zone.this.name
+  tags                = local.tags
 }
 
 output "dns_record" {
