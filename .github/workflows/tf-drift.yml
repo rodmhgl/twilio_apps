@@ -22,7 +22,7 @@ env:
 jobs:
   terraform-plan:
     name: "Terraform Plan"
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, ]
     env:
       #this is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
@@ -36,7 +36,7 @@ jobs:
 
       # Install the latest version of the Terraform CLI
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
 
@@ -57,13 +57,13 @@ jobs:
           if [ $exitcode -eq 1 ]; then
             echo Terraform Plan Failed!
             exit 1
-          else 
+          else
             exit 0
           fi
 
       # Save plan to artifacts
       - name: Publish Terraform Plan
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: ./terraform/tfplan
@@ -95,7 +95,7 @@ jobs:
       # If changes are detected, create a new issue
       - name: Publish Drift Report
         if: steps.tf-plan.outputs.exitcode == 2
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
         with:
@@ -113,11 +113,11 @@ jobs:
               creator: creator,
               title: title
             })
-              
+
             if( issues.data.length > 0 ) {
               // We assume there shouldn't be more than 1 open issue, since we update any issue we find
               const issue = issues.data[0]
-              
+
               if ( issue.body == body ) {
                 console.log('Drift Detected: Found matching issue with duplicate content')
               } else {
@@ -143,7 +143,7 @@ jobs:
       # If changes aren't detected, close any open drift issues
       - name: Publish Drift Report
         if: steps.tf-plan.outputs.exitcode == 0
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -158,10 +158,10 @@ jobs:
               creator: creator,
               title: title
             })
-              
+
             if( issues.data.length > 0 ) {
               const issue = issues.data[0]
-              
+
               github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
