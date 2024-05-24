@@ -31,7 +31,7 @@
     "cookie-parser": "~1.4.3",
     "debug": "^4.3.4",
     "express": "^4.19.2",
-    "pug": "^3.0.2",
+    "pug": "^3.0.3",
     "morgan": "^1.10.0",
     "serve-favicon": "^2.5.0",
     "stylus": "0.63.0",
