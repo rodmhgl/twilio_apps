@@ -100,13 +100,7 @@ jobs:
           host: ${{ vars.DIGITALOCEAN_HOSTNAME }}
           key: ${{ secrets.DIGITALOCEAN_PRIVATE_SSH_KEY }}
           username: ${{ secrets.DIGITALOCEAN_USERNAME }}
-          envs: CLONE_PATH,DEPLOY_PATH,REPO_URL
-          script: |
-            set -eox pipefail
-
-            docker pull rodstewart/twilio_apps:latest
-            docker rm twilio_apps -f
-            docker run --name twilio_apps -dit --restart unless-stopped -p 80:3000 rodstewart/twilio_apps:latest
+          script_path: scripts/start_docker.sh
 
       - name: Update Twilio Webhook URLs
         if: success()
