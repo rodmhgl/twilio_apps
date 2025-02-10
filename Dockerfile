@@ -18,7 +18,7 @@ COPY --from=deps /usr/src/app/node_modules ./node_modules
 FROM node:18-alpine AS runner
 WORKDIR /usr/src/app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 RUN addgroup --gid 1001 --system nodejs
 RUN adduser --system twilio --uid 1001
