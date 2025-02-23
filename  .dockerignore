@@ -1,0 +1,31 @@
+# Development
+.git
+.gitignore
+.env
+.env.*
+.editorconfig
+.eslintrc.yml
+.github
+terraform
+scripts
+tests
+*.md
+
+# Dependencies
+node_modules
+npm-debug.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.log
+
+# Coverage directory
+coverage
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
