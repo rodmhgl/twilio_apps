@@ -17,24 +17,23 @@ FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
 COPY . .
 COPY --from=deps /usr/src/app/node_modules ./node_modules
-# RUN npm run build
 
-FROM node:18-alpine AS runner
+# Production stage
+FROM gcr.io/distroless/nodejs18-debian11 AS runner
 WORKDIR /usr/src/app
 
 ENV NODE_ENV=production
+ENV NPM_CONFIG_LOGLEVEL=error
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 
-RUN addgroup --gid 1001 --system nodejs
-RUN adduser --system twilio --uid 1001
+# Copy application files
+COPY --from=builder /usr/src/app/src ./src
+COPY --from=builder /usr/src/app/middleware ./middleware
+COPY --from=builder /usr/src/app/public ./public
+COPY --from=builder /usr/src/app/*.js ./
+COPY --from=deps /usr/src/app/node_modules ./node_modules
 
-COPY --from=builder --chown=twilio:nodejs /usr/src/app/*.js ./
-COPY --from=builder --chown=twilio:nodejs /usr/src/app/src ./src
-COPY --from=builder --chown=twilio:nodejs /usr/src/app/middleware ./middleware
-COPY --from=builder --chown=twilio:nodejs /usr/src/app/public ./public
-COPY --from=builder --chown=twilio:nodejs /usr/src/app/node_modules ./node_modules
-COPY --from=builder --chown=twilio:nodejs /usr/src/app/package.json ./package.json
-
-USER twilio
+USER nonroot
 
 EXPOSE ${PORT}
-CMD [ "node", "index.js" ]
+CMD ["index.js"]
