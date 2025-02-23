@@ -1,6 +1,10 @@
+ARG NODE_VERSION=18
+ARG PORT=3000
+
 # Install Dependencies
-FROM node:18-alpine AS deps
+FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /usr/src/app
+
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
@@ -8,7 +12,7 @@ COPY package*.json ./
 # RUN npm install
 RUN npm ci --omit=dev
 
-# # Build app
+# Build app
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
 COPY . .
@@ -32,5 +36,5 @@ COPY --from=builder --chown=twilio:nodejs /usr/src/app/package.json ./package.js
 
 USER twilio
 
-EXPOSE 3000
+EXPOSE ${PORT}
 CMD [ "node", "index.js" ]
